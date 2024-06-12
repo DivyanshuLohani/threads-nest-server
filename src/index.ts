@@ -1,18 +1,26 @@
-import express, { Request, Response } from "express";
 import auth from "./routes/auth";
 import threads from "./routes/threads";
 import userRouter from "./routes/user";
-
-import { configDotenv } from "dotenv";
 import authMiddleware from "./middleware/auth";
 import User from "./models/User";
 
+import express, { Request, Response } from "express";
+import { configDotenv } from "dotenv";
+import { v2 as cloudinary } from "cloudinary";
+
 configDotenv();
+
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
+});
 
 const app = express();
 const PORT = 8000;
 
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
 app.use("*", (req, res, next) => {
   console.log(

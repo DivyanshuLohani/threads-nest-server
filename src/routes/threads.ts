@@ -1,3 +1,4 @@
+import { v2 as cloudinary } from "cloudinary";
 import { Router } from "express";
 import validate from "../validators/validate";
 import { ThreadSchema } from "../validators/threadValidator";
@@ -7,11 +8,26 @@ import User from "../models/User";
 
 const router = Router();
 
-router.post("/", validate(ThreadSchema), async (req, res) => {
+router.post("/", async (req, res) => {
   const user = req.user;
   if (!user) return;
-  const { content } = req.body;
-  const newThread = await Thread.create({ content, user: req.user?.id });
+  const { content, img } = req.body;
+  if (!content && !img)
+    return res
+      .status(400)
+      .json({ error: "Thread must contain either text or image" });
+
+  let images: string[] = [];
+  if (img) {
+    const uploadResult = await cloudinary.uploader.upload(img);
+    images.push(uploadResult.secure_url);
+  }
+
+  const newThread = await Thread.create({
+    content,
+    user: req.user?.id,
+    images,
+  });
   res.status(201).json(newThread.toObject());
 });
 
