@@ -1,0 +1,25 @@
+# Dependencies
+/node_modules/
+
+# Build output
+/dist/
+
+# IDE specific files
+/.idea/
+.vscode/
+
+# Temporary testing or debugging files
+/temp/
+/tmp/
+
+# Logs
+*.log
+
+# Coverage reports
+/coverage/
+
+# dotenv file
+.env
+
+# Output of npm commands
+.npmignore
