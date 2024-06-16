@@ -7,11 +7,12 @@ import authMiddleware from "../middleware/auth";
 import User, { IUser } from "../models/User";
 import dbConnect from "../db";
 import validateUser from "../validators/validate";
+import { generateProfilePictureUrl } from "../utls/profileImage";
 
 const router = Router();
 
 router.post("/register/", validateUser(userSchema), async (req, res) => {
-  const { email, password, username, fullName } = req.body;
+  const { email, password, username, fullName, bio } = req.body;
 
   await dbConnect();
 
@@ -25,11 +26,14 @@ router.post("/register/", validateUser(userSchema), async (req, res) => {
 
   try {
     const hashedPassword = await bcrypt.hash(password, 10);
+    const profilePicture = generateProfilePictureUrl(fullName);
     const newUser = await User.create({
       email,
       password: hashedPassword,
       username,
       fullName,
+      profilePicture,
+      bio: bio ?? "",
     });
 
     const userWithoutPassword: any = newUser.toObject();

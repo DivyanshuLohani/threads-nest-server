@@ -7,6 +7,8 @@ import User from "./models/User";
 import express, { Request, Response } from "express";
 import { configDotenv } from "dotenv";
 import { v2 as cloudinary } from "cloudinary";
+import cors from "cors";
+import dbConnect from "./db";
 
 configDotenv();
 
@@ -21,15 +23,16 @@ const PORT = 8000;
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use(cors());
 
-app.use("*", (req, res, next) => {
+app.use((req, res, next) => {
   console.log(
     `[${Intl.DateTimeFormat("en-GB", {
       weekday: "long",
       hour: "2-digit",
       minute: "2-digit",
       second: "2-digit",
-    }).format(new Date())}] ${res.statusCode} [${req.method}] - ${req.path}`
+    }).format(new Date())}] [${req.method}] - ${req.path}`
   );
   next();
 });
@@ -58,6 +61,7 @@ app.use(
   }
 );
 
-app.listen(PORT, () => {
+app.listen(PORT, async () => {
   console.log(`Server is running at http://localhost:${PORT}`);
+  await dbConnect();
 });

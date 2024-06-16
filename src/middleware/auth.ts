@@ -21,7 +21,9 @@ const authMiddleware = async (
     const decoded = verifyToken(token);
     const user = await User.findById(decoded.userId);
     if (!user) throw Error("Cannot find user");
-    req.user = user;
+    const userWithoutPwd: any = user.toObject();
+    delete userWithoutPwd.password;
+    req.user = userWithoutPwd;
     next();
   } catch (error) {
     return res.status(401).json({ error: "Invalid token" });

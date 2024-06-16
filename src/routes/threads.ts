@@ -5,9 +5,11 @@ import { ThreadSchema } from "../validators/threadValidator";
 import Thread from "../models/Thread";
 import mongoose from "mongoose";
 import User from "../models/User";
+import { threadAggreation } from "../models/aggregations";
 
 const router = Router();
 
+// Create a thread
 router.post("/", async (req, res) => {
   const user = req.user;
   if (!user) return;
@@ -25,12 +27,36 @@ router.post("/", async (req, res) => {
 
   const newThread = await Thread.create({
     content,
-    user: req.user?.id,
+    user: req.user?._id,
     images,
   });
-  res.status(201).json(newThread.toObject());
+
+  const thread = await Thread.aggregate([
+    { $match: { _id: newThread._id } },
+    ...threadAggreation,
+  ]).limit(1);
+
+  res.status(201).json(thread[0]);
 });
 
+// Get Threads
+router.get("/", async (req, res) => {
+  if (!req.user) return;
+  const following = req.user.following;
+  const threads = await Thread.aggregate([
+    // {
+    //   $match: {
+    //     user: { $in: following },
+    //   },
+    // },
+    ...threadAggreation,
+    { $sort: { createdAt: -1 } },
+  ]);
+
+  res.status(200).json(threads);
+});
+
+// Get user thread
 router.get("/user/:username", async (req, res) => {
   const existingUser = await User.findOne({
     username: req.params.username,
@@ -46,7 +72,7 @@ router.get("/user/:username", async (req, res) => {
     },
     {
       $lookup: {
-        from: "threads", // assuming the comments are also stored in the same 'posts' collection
+        from: "threads",
         localField: "comments",
         foreignField: "_id",
         as: "commentsDetails",
@@ -76,6 +102,7 @@ router.get("/user/:username", async (req, res) => {
   res.status(201).json(threads);
 });
 
+// Reply
 router.post("/:id/thread", validate(ThreadSchema), async (req, res) => {
   const user = req.user;
   if (!user) return;
@@ -94,6 +121,7 @@ router.post("/:id/thread", validate(ThreadSchema), async (req, res) => {
   res.status(201).json(newThread.toObject());
 });
 
+// Get Thread by ID
 router.get("/:id", async (req, res) => {
   const thread = await Thread.aggregate([
     {
