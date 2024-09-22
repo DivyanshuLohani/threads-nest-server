@@ -1,8 +1,8 @@
-# Threads Clone Backend Server
+# Threads Clone Nest Server
 
 ## Overview
 
-Threads Clone application that allows users to post threads, follow other users, and interact with posts. This repository contains the backend server built using Express.js.
+Threads Nest allows users to post threads, follow other users, and interact with posts. This repository contains the backend server built using Express.js.
 
 ## Features
 
@@ -26,7 +26,7 @@ Before you begin, ensure you have met the following requirements:
 First, clone the repository to your local machine:
 
 ```bash
-git clone https://github.com/your-username/threads-clone-backend.git
-cd threads-clone-backend
+git clone https://github.com/DivyanshuLohani/threads-nest-server.git
+cd threads-nest-server
 ```
 
